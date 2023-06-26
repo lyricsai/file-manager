@@ -49,7 +49,7 @@ export const listFilesAndFolders = () => {
 };
 
 export const navigateToDirectory = (directory) => {
-  const targetDirectory = resolve(directory);
+  const targetDirectory = resolve(currentDirectory, directory);
 
   if (!targetDirectory.startsWith(process.cwd())) {
     console.log(`Invalid input: "${directory}" is not a valid path.`);
@@ -65,6 +65,16 @@ export const navigateToDirectory = (directory) => {
     currentDirectory = targetDirectory;
     printWorkingDirectory();
   });
+};
+
+export const navigateToParentDirectory = (directory) => {
+  const targetDirectory = dirname(directory);
+  if (targetDirectory === currentDirectory) {
+    console.log("You are already in the root directory");
+    return;
+  }
+  currentDirectory = targetDirectory;
+  printWorkingDirectory();
 };
 
 export const createDirectory = (directory) => {

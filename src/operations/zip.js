@@ -3,6 +3,7 @@ import { resolve, basename, parse } from "path";
 import { createReadStream, createWriteStream, read, rm } from "fs";
 import { currentDirectory } from "./dir.js";
 import { handleError } from "../lib/helpers.js";
+import { rl } from "./readline.js";
 
 export const compressFile = async (filePath, dest) => {
   const _basename = basename(filePath);
@@ -24,19 +25,28 @@ export const compressFile = async (filePath, dest) => {
     return;
   });
 
-  const writeStream = createWriteStream(fullDestinationPath + ".br", {
-    flags: "wx+",
-  });
+  readStream.on("open", () => {
+    const writeStream = createWriteStream(fullDestinationPath + ".br", {
+      flags: "wx+",
+    });
 
-  writeStream.on("error", handleError);
-  const compress = createBrotliCompress();
+    writeStream.on("error", handleError);
+    const compress = createBrotliCompress();
 
-  readStream.pipe(compress).pipe(writeStream);
+    readStream.pipe(compress).pipe(writeStream);
 
-  readStream.on("error", handleError).on("end", () => {
-    console.log(
-      `File "${filePath}" compressed successfully to "${fullDestinationPath}.br"\n`
-    );
+    readStream.on("error", handleError).on("end", () => {
+      console.log(
+        `File "${filePath}" compressed successfully to "${fullDestinationPath}.br"\n`
+      );
+    });
+    readStream.on("finish", () => {
+      console.log(
+        `File "${filePath}" decompressed successfully to "${fullDestinationPath}"\n`
+      );
+      readStream.destroy();
+      rl.prompt();
+    });
   });
 };
 
@@ -65,19 +75,23 @@ export const decompressFile = (filePath, destinationPath) => {
       handleError
     );
 
-    const writeStream = createWriteStream(fullDestinationPath, {
-      flags: "wx+",
-    }).on("error", handleError);
+    readStream.on("open", () => {
+      const writeStream = createWriteStream(fullDestinationPath, {
+        flags: "wx+",
+      }).on("error", handleError);
 
-    const brotli = createBrotliDecompress();
-    const stream = readStream.pipe(brotli).pipe(writeStream);
+      const brotli = createBrotliDecompress();
+      const stream = readStream.pipe(brotli).pipe(writeStream);
 
-    stream.on("finish", () => {
-      console.log(
-        `File "${filePath}" decompressed successfully to "${fullDestinationPath}"\n`
-      );
+      stream.on("finish", () => {
+        console.log(
+          `File "${filePath}" decompressed successfully to "${fullDestinationPath}"\n`
+        );
+        stream.destroy();
+        rl.prompt();
+      });
+      stream.on("error", handleError);
     });
-    stream.on("error", handleError);
   } catch (error) {
     console.log(`Operation failed ${error.message}`);
   }

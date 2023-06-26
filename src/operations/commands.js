@@ -14,6 +14,7 @@ import {
   navigateToDirectory,
   printWorkingDirectory,
   listFilesAndFolders,
+  navigateToParentDirectory,
 } from "./dir.js";
 import { compressFile, decompressFile } from "./zip.js";
 import { exiting } from "../lib/helpers.js";
@@ -37,10 +38,7 @@ export const executeCommand = (command, parts) => {
       createDirectory(newDirectoryArg);
       break;
     case "up":
-      const parentDirectory = path.dirname(currentDirectory);
-      console.log("parent", parentDirectory, "current", currentDirectory);
-      navigateToDirectory(parentDirectory);
-      printWorkingDirectory();
+      navigateToParentDirectory(currentDirectory);
       break;
     case "cd":
       const directory = parts[1];
