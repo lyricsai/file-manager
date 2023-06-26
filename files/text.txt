@@ -1,0 +1,5 @@
+Something
+to be
+printed
+to 
+console
