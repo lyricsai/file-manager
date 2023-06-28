@@ -1,11 +1,11 @@
 import { createBrotliCompress, createBrotliDecompress } from "zlib";
-import { resolve, basename, parse } from "path";
+import { resolve, basename, parse, dirname } from "path";
 import { createReadStream, createWriteStream, read, rm } from "fs";
 import { currentDirectory } from "./dir.js";
 import { handleError } from "../lib/helpers.js";
 import { rl } from "./readline.js";
 
-export const compressFile = async (filePath, dest) => {
+export const compressFile = async (filePath, dest = dirname(filePath)) => {
   const _basename = basename(filePath);
   const src = resolve(currentDirectory, filePath);
   const fullDestinationPath = resolve(currentDirectory, dest, _basename);
@@ -50,7 +50,10 @@ export const compressFile = async (filePath, dest) => {
   });
 };
 
-export const decompressFile = (filePath, destinationPath) => {
+export const decompressFile = (
+  filePath,
+  destinationPath = dirname(filePath)
+) => {
   try {
     const { name } = parse(filePath);
     const src = resolve(currentDirectory, filePath);
