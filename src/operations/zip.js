@@ -5,7 +5,9 @@ import { currentDirectory } from "./dir.js";
 import { handleError } from "../lib/helpers.js";
 import { rl } from "./readline.js";
 
-export const compressFile = async (filePath, dest = dirname(filePath)) => {
+export const compressFile = async (filePath = "", dest = dirname(filePath)) => {
+  if (!filePath) return handleError({ message: "No file path" });
+
   const _basename = basename(filePath);
   const src = resolve(currentDirectory, filePath);
   const fullDestinationPath = resolve(currentDirectory, dest, _basename);
@@ -51,9 +53,10 @@ export const compressFile = async (filePath, dest = dirname(filePath)) => {
 };
 
 export const decompressFile = (
-  filePath,
+  filePath = "",
   destinationPath = dirname(filePath)
 ) => {
+  if (!filePath) return handleError({ message: "No file path" });
   try {
     const { name } = parse(filePath);
     const src = resolve(currentDirectory, filePath);
