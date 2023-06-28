@@ -1,6 +1,7 @@
 import { createInterface } from "readline";
 import { processCommand } from "../index.js";
 import { exiting } from "../lib/helpers.js";
+import { printWorkingDirectory } from "./dir.js";
 
 export const rl = createInterface({
   input: process.stdin,
@@ -10,6 +11,7 @@ export const rl = createInterface({
 
 rl.on("line", (line) => {
   processCommand(line);
+  printWorkingDirectory();
   rl.prompt();
 });
 

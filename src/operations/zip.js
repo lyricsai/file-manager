@@ -61,8 +61,8 @@ export const decompressFile = (filePath, destinationPath) => {
     );
 
     if (
-      !src.startsWith(process.cwd()) ||
-      !fullDestinationPath.startsWith(process.cwd())
+      !src.startsWith(currentDirectory) ||
+      !fullDestinationPath.startsWith(currentDirectory)
     ) {
       console.log(
         `Invalid input: "${filePath}" or "${destinationPath}" is not a valid path.`

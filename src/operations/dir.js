@@ -1,19 +1,10 @@
-import {
-  readdir,
-  statSync,
-  access,
-  createReadStream,
-  writeFile,
-  rename,
-  createWriteStream,
-  unlink,
-  mkdir,
-} from "fs";
-import path, { join, resolve, basename, parse, dirname } from "path";
+import { readdir, statSync, access, mkdir } from "fs";
+import path, { join, resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import { handleError } from "../lib/helpers.js";
+import { homedir } from "os";
 
-export let currentDirectory = process.cwd();
+export let currentDirectory = homedir();
 export const getCurrDir = () => {
   return dirname(fileURLToPath(import.meta.url));
 };
@@ -50,8 +41,8 @@ export const listFilesAndFolders = () => {
 
 export const navigateToDirectory = (directory) => {
   const targetDirectory = resolve(currentDirectory, directory);
-
-  if (!targetDirectory.startsWith(process.cwd())) {
+  console.log(currentDirectory, directory, targetDirectory);
+  if (!targetDirectory.startsWith(currentDirectory)) {
     console.log(`Invalid input: "${directory}" is not a valid path.`);
     return;
   }
@@ -69,7 +60,7 @@ export const navigateToDirectory = (directory) => {
 
 export const navigateToParentDirectory = (directory) => {
   const targetDirectory = dirname(directory);
-  if (targetDirectory === currentDirectory) {
+  if (currentDirectory === homedir()) {
     console.log("You are already in the root directory");
     return;
   }

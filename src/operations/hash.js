@@ -8,7 +8,7 @@ import { rl } from "./readline.js";
 export const calculateHash = (filePath) => {
   const fullPath = resolve(currentDirectory, filePath);
 
-  if (!fullPath.startsWith(process.cwd())) {
+  if (!fullPath.startsWith(currentDirectory)) {
     console.log(`Invalid input: "${filePath}" is not a valid path.`);
     return;
   }

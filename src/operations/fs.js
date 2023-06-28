@@ -1,14 +1,5 @@
-import {
-  readdir,
-  statSync,
-  access,
-  createReadStream,
-  writeFile,
-  rename,
-  createWriteStream,
-  unlink,
-  mkdir,
-} from "fs";
+import { createReadStream, rename, createWriteStream, unlink } from "fs";
+import { writeFile } from "fs/promises";
 import path, { join, resolve, basename, parse, dirname } from "path";
 import { fileURLToPath } from "url";
 import { handleError } from "../lib/helpers.js";
@@ -18,7 +9,7 @@ import { rl } from "./readline.js";
 export const readFile = (filePath) => {
   const src = resolve(currentDirectory, filePath);
 
-  if (!src.startsWith(process.cwd())) {
+  if (!src.startsWith(currentDirectory)) {
     console.log(`Invalid input: "${filePath}" is not a valid path.`);
     return;
   }
@@ -36,7 +27,7 @@ export const readFile = (filePath) => {
 
 export const createFile = async (fileName) => {
   const filePath = resolve(currentDirectory, fileName);
-
+  const content = "";
   try {
     await writeFile(filePath, content, { flag: "wx" });
   } catch (error) {
@@ -49,8 +40,8 @@ export const renameFile = (filePath, newFileName) => {
   const fullNewFilePath = resolve(currentDirectory, newFileName);
 
   if (
-    !srcPath.startsWith(process.cwd()) ||
-    !fullNewFilePath.startsWith(process.cwd())
+    !srcPath.startsWith(currentDirectory) ||
+    !fullNewFilePath.startsWith(currentDirectory)
   ) {
     console.log(
       `Invalid input: "${filePath}" or "${newFileName}" is not a valid path.`
@@ -74,8 +65,8 @@ export const copyFile = (filePath, dest) => {
   const fullNewDirectory = path.resolve(currentDirectory, dest);
 
   if (
-    !src.startsWith(process.cwd()) ||
-    !fullNewDirectory.startsWith(process.cwd())
+    !src.startsWith(currentDirectory) ||
+    !fullNewDirectory.startsWith(currentDirectory)
   ) {
     console.log(
       `Invalid input: "${filePath}" or "${dest}" is not a valid path.`
@@ -109,50 +100,58 @@ export const copyFile = (filePath, dest) => {
 };
 
 export const moveFile = (filePath, dest) => {
-  const src = path.resolve(currentDirectory, filePath);
-  const fullNewDirectory = path.resolve(currentDirectory, dest);
+  try {
+    const src = path.resolve(currentDirectory, filePath);
+    const fullNewDirectory = path.resolve(currentDirectory, dest);
 
-  if (
-    !src.startsWith(process.cwd()) ||
-    !fullNewDirectory.startsWith(process.cwd())
-  ) {
-    console.log(
-      `Invalid input: "${filePath}" or "${dest}" is not a valid path.`
-    );
-    return;
-  }
+    if (
+      !src.startsWith(currentDirectory) ||
+      !fullNewDirectory.startsWith(currentDirectory)
+    ) {
+      console.log(
+        `Invalid input: "${filePath}" or "${dest}" is not a valid path.`
+      );
+      return;
+    }
 
-  const targetPath = path.join(fullNewDirectory, path.basename(src));
+    const targetPath = path.join(fullNewDirectory, path.basename(src));
 
-  const readStream = createReadStream(src);
-  const writeStream = createWriteStream(targetPath);
+    const readStream = createReadStream(src);
 
-  readStream.on("error", (err) => {
-    console.log("Operation failed");
-    console.error(err.message);
-  });
-
-  readStream.on("open", () => {
-    const writeStream = createWriteStream(targetPath);
-
-    writeStream.on("error", (err) => {
+    readStream.on("error", (err) => {
       console.log("Operation failed");
       console.error(err.message);
     });
 
-    writeStream.on("finish", () => {
-      deleteFile(src);
-      console.log(`Moved to directory ${dest}`);
-    });
+    readStream.on("open", () => {
+      const writeStream = createWriteStream(targetPath);
 
-    readStream.pipe(writeStream);
-  });
+      writeStream.on("error", (err) => {
+        console.log("Operation failed");
+        console.error(err.message);
+      });
+
+      writeStream.on("finish", () => {
+        unlink(src, (err) => {
+          if (err) {
+            console.log("Operation failed");
+            return;
+          }
+          console.log(`Moved to directory ${dest}`);
+        });
+      });
+
+      readStream.pipe(writeStream);
+    });
+  } catch (error) {
+    console.log("Operation failed", error.message);
+  }
 };
 
 export const deleteFile = (filePath) => {
   const fullPath = resolve(currentDirectory, filePath);
 
-  if (!fullPath.startsWith(process.cwd())) {
+  if (!fullPath.startsWith(currentDirectory)) {
     console.log(`Invalid input: "${filePath}" is not a valid path.`);
     return;
   }

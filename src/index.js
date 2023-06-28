@@ -4,6 +4,7 @@ import { executeCommand } from "./operations/commands.js";
 import { rl } from "./operations/readline.js";
 import { printWorkingDirectory } from "./operations/dir.js";
 import { exiting } from "./lib/helpers.js";
+import { homedir } from "os";
 
 export const processCommand = (line) => {
   try {

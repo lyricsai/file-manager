@@ -1,5 +1,5 @@
 "use strict";
-import path from "path";
+
 import {
   createFile,
   readFile,
