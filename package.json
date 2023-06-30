@@ -1,13 +1,13 @@
 {
-    "name": "file-manager",
-    "type": "module",
-    "version": "1.0.0",
-    "description": "",
-    "main": "index.js",
-    "scripts": {
-        "start": "node src/index.js"
-    },
-    "keywords": [],
-    "author": "",
-    "license": "ISC"
+  "name": "file-manager",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }
